@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.http import urlencode
 from . models import Blog, Comment, Category
 from django.contrib.auth.decorators import login_required
 from .forms import CreateBlogForm, CommentForm
@@ -6,6 +8,8 @@ from django.utils.text import slugify
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+
 
 # Create your views here.
 def index(request):
@@ -55,6 +59,17 @@ def detail(request, slug):
     comments = Comment.objects.filter(blog=blog)
     form = CommentForm()
     
+    keyword = request.GET.get("search")
+    category_id = request.GET.get("category")
+    
+
+    if category_id or keyword:
+        query_params = {}
+        if category_id:
+            query_params['category'] = category_id
+        if keyword:
+            query_params['search'] = keyword
+        return redirect(f"{reverse('index')}?{urlencode(query_params)}")
     
     if request.method == 'POST':
         if request.user.is_authenticated:
@@ -66,7 +81,11 @@ def detail(request, slug):
                 comment.save()
                 return redirect('detail', slug=blog.slug)
             
-    context = {'blog': blog, "form":form, 'comments':comments}
+    
+            
+    categories = Category.objects.all()
+            
+    context = {'blog': blog, "form":form, 'comments':comments, 'categories':categories}
     return render(request, "blogapp/detail.html", context)
 
 @login_required(login_url="signin")
@@ -113,3 +132,4 @@ def delete_article(request, slug):
         return redirect("profile")
     context = {"blog":blog, "delete":delete, "blogs": blogs}
     return render(request, "core/profile.html", context)
+

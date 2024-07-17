@@ -53,7 +53,7 @@
                       Hi, {{request.user.username}}
                     </a>
                     <ul class="dropdown-menu bg-dark">
-                      <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                      <li><a class="dropdown-item" href="{% url 'profile' request.user.username %}">Profile</a></li>
                       <li><a class="dropdown-item" href="{% url 'create-article' %}">Create Articles</a></li>
                       <li><a class="dropdown-item" href="{% url 'signout' %}">Logout</a></li>
                     </ul>
@@ -114,9 +114,13 @@
                   <div class="col-lg-3 col-md-6">
                       <h5 class="text-white">Quick Links</h5>
                       <ul class="list-unstyled">
-                          <li><a href="/index/" class="text-white">Home</a></li>
-                          <li><a href="/about/" class="text-white">About</a></li>
-                          <li><a href="#" class="text-white">Contact</a></li>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.username %}
+                                <li><a href="{% url 'profile' request.user.username %}" class="text-white">Profile</a></li>
+                            {% endif %}
+                        {% endif %}
+                          <li><a href="{% url 'index' %}" class="text-white">Home</a></li>
+                          <li><a href="{% url 'user_list' %}" class="text-white">Users</a></li>
                       </ul>
                   </div>
 
